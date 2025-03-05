@@ -141,7 +141,7 @@ impl<'w, 's> UiStyleQuery<'w, 's> {
 
         _ = self.text_fonts.get_mut(entity).map(|mut font| {
             font.font_size = computed.font_size;
-            font.font = computed.font.clone();
+            font.font = if computed.font.is_empty() { Handle::default() } else { self.server.load(&computed.font) };
         });
 
         _ = self.text_colors.get_mut(entity).map(|mut color| {
@@ -414,7 +414,7 @@ pub struct ComputedStyle {
     pub shadow: Option<BoxShadow>,
     pub background: Color,
     pub outline: Option<Outline>,
-    pub font: Handle<Font>,
+    pub font: String,
     pub font_size: f32,
     pub font_color: Color,
     pub atlas: Option<Atlas>,
@@ -441,7 +441,7 @@ impl Default for ComputedStyle {
             shadow: None,
             image_region: None,
             outline: None,
-            font: Handle::default(),
+            font: String::default(),
             font_size: 12.,
             font_color: Color::WHITE,
             atlas: None,
@@ -624,7 +624,7 @@ impl HtmlStyle {
                     });
                 }
             },
-            // StyleAttr::Font(font) => self.regular.font = server
+            StyleAttr::Font(font) => self.computed.font = font.clone(),
             _ => (),
         };
     }
